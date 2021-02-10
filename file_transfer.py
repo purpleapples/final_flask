@@ -5,7 +5,7 @@ from pymongo import MongoClient
 
 app = Flask(__name__)
 CORS(app)
-app.config['JSON_AS_ASCII'] = False;
+app.config['JSON_AS_ASCII'] = False
 
 @app.route('/visual', methods=['POST'])
 def getVariableAndPutBokeh():
@@ -15,7 +15,7 @@ def getVariableAndPutBokeh():
     :return: 통계시각화데이터
     """
     json_data = request.get_json()# 전송한 json data
-    print("data 확인",json_data)
+    print("data 확인", json_data)
     # 년도
     year = json_data['year']
     # 월
@@ -28,32 +28,16 @@ def getVariableAndPutBokeh():
 
     client = MongoClient("mongodb://issueWriter:final@18.191.252.101", 27017)
     db = client.issue_writer
-    collection = db.visual_data
+    collection = db.test
     # $regex :년도 닮음 검색
 
     find_condition = {key: str(value) for key, value in json_data.items()}
     print('find_condition', find_condition)
-    data = list(collection.find(find_condition,
-                                projection={"_id": 0} # objectId 제외
-                                )
-                )
-    # 임시로 데이터 다이어트
-    # 데이터는 반드시 하나씩 뽑혀야 합니다.
-
-    if data != []:
-        data = data[0]
-    else:
-        data = list(collection.find({"graph_sort": graphSort},
-                                projection={"_id": 0}  # objectId 제외
-                                )
-                    # .sort({"year":  1#,
-                    #                    # "month": 1,
-                    #                    # "week":  1
-                    #                    }
-                    #                    ).limit(1)
-                    )[0]
-
-
+    data = collection.find_one(find_condition, projection={"_id": 0}) # objectId 제외
+    empty = False
+    if data is None:
+        empty = True
+    data = {'empty': empty, 'plot': data}
     return jsonify({'data':  data})
 
 
@@ -63,7 +47,7 @@ def getLdaTable():
     import numpy as np
 
     json_data = request.get_json()# 전송한 json data
-    print("data 확인",json_data)
+    print("data 확인", json_data)
     # 년도
     year = json_data['year']
     # 월
@@ -86,38 +70,21 @@ def getLdaTable():
                                             'datetime': 1,
                                             "Perc_Contribution": 1,
                                             'category3': 1,
-                                            "content": 1} # objectId 제외
+                                            "content": 1
+                                            }# objectId 제외
                                 )
                 )
-    # 임시로 데이터 다이어트
-    # 데이터는 반드시 하나씩 뽑혀야 합니다.
-    if data == []:
-        data = list(collection.find({},
-                                projection={"_id": 0,
-                                            'datetime': 1,
-                                            "Perc_Contribution": 1,
-                                            'category3': 1,
-                                            "content": 1}  # objectId 제외
-                                )
-                    # .sort({"year":  1#,
-                    #                    # "month": 1,
-                    #                    # "week":  1
-                    #                    }
-                    #                    ).limit(1)
-                    )
 
-    print(data)
+    # react-bootstrap-table-next를 위한 인조 key 생성
     for index, row in enumerate(data):
         row['key_value'] = index
-    column_list = ['Perc_Contrigution', 'datetime','category3','Dominant_topic','content']
-    product = data
-    data = {'column': column_list, 'product': product}
-    print('table')
-    # column 구조
-    # [{dataField : 'id',text: "Product ID}]
 
-    # data 구조
-    # [[row1],[row2],[row3]]
+    # 검색결과 없을 경우
+    empty = False
+    if data is None:
+        empty = True
+
+    data = {'empty': empty, 'product': data}
 
     return jsonify({'data':  data})
 
@@ -128,15 +95,13 @@ def getModelTable():
     import numpy as np
 
     json_data = request.get_json()# 전송한 json data
-    print("data 확인",json_data)
+    print("request confirm", json_data)
     # 년도
     year = json_data['year']
     # 월
     month = json_data['month']
-
     # 주차
     week = json_data['week']
-    # graph 종류
 
 
     client = MongoClient("mongodb://issueWriter:final@18.191.252.101", 27017)
@@ -157,35 +122,17 @@ def getModelTable():
                 )
     # 임시로 데이터 다이어트
     # 데이터는 반드시 하나씩 뽑혀야 합니다.
-    if data == []:
-        data = list(collection.find({"difference": True},
-                                projection={"_id": 0,
-                                            'datetime': 1,
-                                            'label': 1,
-                                            'prediction': 1,
-                                            'category3': 1,
-                                            "content": 1}   # objectId 제외
-                                ).limit(30)
-                    # .sort({"year":  1#,
-                    #                    # "month": 1,
-                    #                    # "week":  1
-                    #                    }
-                    #                    ).limit(1)
-                    )
-
-    print(data)
+    print('search result : ', data)
     for index, row in enumerate(data):
         row['key_value'] = index
-    column_list = ['datetime', 'label','prediction', 'content']
-    product = data
-    data = {'column': column_list, 'product': product}
-    print('table')
-    print(product[0].keys())
-    # column 구조
-    # [{dataField : 'id',text: "Product ID}]
 
-    # data 구조
-    # [[row1],[row2],[row3]]
+    # 검색 결과 없을 경우
+    empty = False
+    if data is None:
+        empty = True
+
+    product = data
+    data = {'empty': empty, 'product': product}
 
     return jsonify({'data':  data})
 if __name__ == '__main__':
