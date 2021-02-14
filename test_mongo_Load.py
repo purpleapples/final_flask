@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-client = MongoClient("mongodb://db:final@121.138.83.113", 27017)
+client = MongoClient("mongodb://backip", 27017)
 db = client.admin
 collection = db.visual_compParts
 #print(dir(db))
