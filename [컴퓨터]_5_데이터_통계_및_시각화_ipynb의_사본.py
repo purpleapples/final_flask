@@ -25,10 +25,10 @@ from bokeh.embed import json_item
 # from bokeh.io import show
 
 # MongoDB 연결
-client = MongoClient("mongodb://issueWriter:final@18.223.118.236", 27017)
+client ="awsip"
 db = client.issue_writer
 
-client2 = MongoClient('mongodb://issueWriter:final@121.138.83.113', 27017)
+client2 = "backip"
 db2 = client2.issue_writer
 collection = db2.visual_compParts
 """# 데이터셋 준비"""
