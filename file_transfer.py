@@ -17,7 +17,7 @@ def getVariableAndPutBokeh():
     json_data = request.get_json()# 전송한 json data
     print("show bokeh find condition", json_data)
 
-    client = MongoClient("mongodb://issueWriter:final@121.138.83.113", 27017)
+    client = MongoClient("mongodb:awsip", 27017)
     db = client.issue_writer
     collection = db.visual_compParts
     # $regex :년도 닮음 검색
@@ -41,7 +41,7 @@ def getLdaTable():
 
     print("show lda table find condition", json_data)
 
-    client = MongoClient("mongodb://issueWriter:final@18.223.118.236", 27017)
+    client = MongoClient("mongodb://awsip", 27017)
     db = client.issue_writer
     collection = db.Lda_compParts
     # $regex :년도 닮음 검색
@@ -78,7 +78,7 @@ def getModelTable():
     json_data = request.get_json()# 전송한 json data
     print("show model table find condition", json_data)
 
-    client = MongoClient("mongodb://issueWriter:final@18.223.118.236", 27017)
+    client = MongoClient("mongodb://awsip", 27017)
     db = client.issue_writer
     collection = db.LSTM_label_compParts
     # $regex :년도 닮음 검색
